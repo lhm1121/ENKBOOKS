@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>enkbooks 이엔케이북스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 상단 고정 내비 + 해시 라우팅 단일 페이지. 교재 위 형광펜 밑줄을 모티브로, 잉크 남색 + 형광 노랑 포인트 */
+:root{
+  --bg:#fbfbf8; --surface:#ffffff; --ink:#1b2440; --muted:#5d6479; --line:#e3e4ea;
+  --accent:#1f3a8a; --mark:#ffe14d; --mark-soft:#fff3a8; --chip:#eef1f8;
+  --c1:#1f3a8a; --c2:#0f766e; --c3:#b4472b; --c4:#6d4fb3; --c5:#2f6f3e; --c6:#9a6a12;
+  --display:"Nanum Myeongjo",Georgia,serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151f; --surface:#191d2a; --ink:#e9ebf2; --muted:#a0a6b8; --line:#2b3142;
+  --accent:#9fb4ff; --mark:#e6c62e; --mark-soft:#4a4320; --chip:#232838; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151f; --surface:#191d2a; --ink:#e9ebf2; --muted:#a0a6b8; --line:#2b3142;
+  --accent:#9fb4ff; --mark:#e6c62e; --mark-soft:#4a4320; --chip:#232838; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+a{color:inherit}
+h1,h2,h3{text-wrap:balance;line-height:1.3;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mark{background:linear-gradient(transparent 58%,var(--mark) 58%,var(--mark) 92%,transparent 92%);padding:0 .1em}
+button,.btn{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar{display:flex;align-items:center;gap:24px;padding-block:14px}
+.logo{display:flex;align-items:baseline;gap:8px;text-decoration:none}
+.logo b{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.01em}
+.logo span{font-size:12px;color:var(--muted)}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav a{text-decoration:none;padding:6px 12px;border-radius:6px;font-weight:500;color:var(--muted)}
+nav a:hover{color:var(--ink);background:var(--chip)}
+nav a.on{color:var(--ink);background:var(--mark-soft)}
+.cart-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:6px 12px;white-space:nowrap}
+.cart-btn em{font-style:normal;background:var(--accent);color:var(--surface);border-radius:10px;padding:0 7px;font-size:12px;margin-left:4px}
+@media (max-width:760px){.topbar{flex-wrap:wrap;gap:8px}nav{order:3;width:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap}.cart-btn{margin-left:auto}}
+
+main{padding-block:32px 64px;min-height:60vh}
+section+section{margin-top:56px}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.sec-head h2{font-family:var(--display);font-size:24px}
+.sec-head a{font-size:14px;color:var(--muted)}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center;padding-block:16px 8px}
+.hero h1{font-family:var(--display);font-size:clamp(30px,4.4vw,46px);font-weight:800;letter-spacing:-.02em;margin-top:10px}
+.hero p{color:var(--muted);max-width:34em;margin:16px 0 24px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;border-radius:8px;padding:10px 18px;font-weight:600;border:1px solid var(--ink);background:var(--ink);color:var(--bg)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.small{padding:6px 12px;font-size:14px}
+.hero-stack{position:relative;height:300px}
+.hero-stack .cover{position:absolute;width:44%;box-shadow:0 14px 30px rgb(0 0 0 / .18)}
+.hero-stack .cover:nth-child(1){left:4%;top:30px;transform:rotate(-6deg)}
+.hero-stack .cover:nth-child(2){left:30%;top:0;z-index:2}
+.hero-stack .cover:nth-child(3){left:56%;top:36px;transform:rotate(5deg)}
+@media (max-width:760px){.hero{grid-template-columns:1fr}.hero-stack{height:240px;max-width:380px}}
+
+/* quick menu */
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px}
+.quick a{display:flex;flex-direction:column;gap:2px;padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none}
+.quick a b{font-size:16px}
+.quick a span{font-size:13px;color:var(--muted)}
+.quick a:hover{border-color:var(--accent)}
+@media (max-width:760px){.quick{grid-template-columns:repeat(2,1fr)}}
+
+/* covers (CSS로 그린 임시 표지) */
+.cover{aspect-ratio:3/4;max-width:100%;border-radius:4px 8px 8px 4px;background:var(--cc);color:#fff;padding:12% 10%;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7%;background:rgb(0 0 0 / .18)}
+.cover::after{content:"";position:absolute;right:-20%;bottom:-12%;width:80%;aspect-ratio:1;border-radius:50%;background:rgb(255 255 255 / .1)}
+.cover small{font-size:clamp(9px,1.2vw,11px);letter-spacing:.06em;opacity:.85;position:relative}
+.cover strong{font-family:var(--display);font-weight:800;font-size:clamp(14px,2vw,22px);line-height:1.2;position:relative}
+.cover .pub{font-size:clamp(9px,1vw,11px);opacity:.8;position:relative}
+
+/* book grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:28px 20px}
+.card{text-decoration:none;display:flex;flex-direction:column;gap:10px}
+.card .cover{transition:transform .2s}
+.card:hover .cover{transform:translateY(-4px)}
+.card h3{font-size:15px;font-weight:600}
+.card .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:4px;background:var(--chip);color:var(--muted);font-weight:500}
+.tag.new{background:var(--mark-soft);color:var(--ink)}
+@media (max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:20px 14px}}
+
+/* catalog filters */
+.catalog{display:grid;grid-template-columns:200px 1fr;gap:32px}
+.filters{display:flex;flex-direction:column;gap:2px;position:sticky;top:90px;align-self:start}
+.filters button{text-align:left;border:0;background:transparent;color:var(--muted);padding:8px 12px;border-radius:6px}
+.filters button.on{background:var(--mark-soft);color:var(--ink);font-weight:600}
+.filters button:hover{color:var(--ink)}
+.toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.toolbar input,.toolbar select{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.toolbar input{flex:1;min-width:0}
+.count{font-size:13px;color:var(--muted)}
+@media (max-width:760px){.catalog{grid-template-columns:1fr}.filters{position:static;flex-direction:row;overflow-x:auto;gap:4px}.filters button{white-space:nowrap}}
+
+/* detail */
+.detail{display:grid;grid-template-columns:300px 1fr;gap:48px}
+.detail .cover{width:100%}
+.detail h1{font-family:var(--display);font-size:32px;font-weight:800;margin:8px 0 4px}
+.detail .sub{color:var(--muted);margin-bottom:20px}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 20px;font-size:14px;padding:16px 0;border-block:1px solid var(--line);margin-bottom:20px}
+.spec dt{color:var(--muted)}
+.spec dd{margin:0;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:13px}
+.price{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.price b{font-size:26px;font-variant-numeric:tabular-nums}
+.price s{color:var(--muted)}
+.buy{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.stores{display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
+.stores a{padding:6px 12px;border:1px solid var(--line);border-radius:6px;text-decoration:none;background:var(--surface)}
+.stores a:hover{border-color:var(--accent)}
+.note{font-size:13px;color:var(--muted)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:40px 0 24px;overflow-x:auto}
+.tabs button{border:0;background:transparent;padding:10px 16px;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button.on{color:var(--ink);font-weight:600;border-color:var(--mark)}
+.prose{max-width:65ch}
+.prose ul,.prose ol{padding-left:1.2em}
+.toc li{padding:4px 0;border-bottom:1px dashed var(--line)}
+@media (max-width:760px){.detail{grid-template-columns:1fr;gap:24px}.detail .cover{max-width:240px}}
+
+/* resources table */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;letter-spacing:.04em;color:var(--muted);font-weight:600;background:var(--chip)}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.ftype{font-family:var(--mono);font-size:11px;padding:2px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.dl{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:6px;padding:4px 10px;font-size:13px;white-space:nowrap}
+.dl[disabled]{border-color:var(--line);color:var(--muted);cursor:not-allowed}
+.lock{font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* boards */
+.board{list-style:none;padding:0;margin:0;border-top:2px solid var(--ink)}
+.board li{display:flex;gap:16px;padding:14px 4px;border-bottom:1px solid var(--line);align-items:baseline;flex-wrap:wrap}
+.board li b{font-weight:500;flex:1;min-width:0}
+.board time{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:24px}
+.form{display:grid;gap:12px;max-width:520px}
+.form label{display:grid;gap:4px;font-size:14px;font-weight:500}
+.form input,.form select,.form textarea{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+footer{border-top:1px solid var(--line);background:var(--surface);padding-block:32px;font-size:13px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+footer b{color:var(--ink);font-family:var(--display);font-size:18px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap topbar">
+    <a class="logo" href="#home"><b>enkbooks</b><span>이엔케이북스</span></a>
+    <nav id="nav">
+      <a href="#books">교재</a>
+      <a href="#resources">자료실</a>
+      <a href="#support">고객센터</a>
+      <a href="#about">회사소개</a>
+    </nav>
+    <button class="cart-btn" id="cartBtn" type="button">장바구니<em id="cartCount">0</em></button>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<footer>
+  <div class="wrap">
+    <div><b>enkbooks</b><br>이엔케이북스 · 영어 교육 전문 출판<br>사업자 정보와 주소는 등록 후 기재 예정입니다.</div>
+    <div>교재 문의 · 자료 요청은 <a href="#support">고객센터</a>로 남겨 주세요.<br>© 2026 enkbooks</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* =========================================================
+   데이터 영역 — 책·자료·공지를 여기에서 추가/수정하세요.
+   지금 들어 있는 책은 화면 구성을 보여 주기 위한 "예시"입니다.
+   ---------------------------------------------------------
+   stores: 외부 서점 링크(ISBN 검색). 자체 판매를 열면 shop.enabled=true
+   resources.url: 실제 파일 주소를 넣으면 다운로드 버튼이 켜집니다.
+   resources.access: "all"(누구나) | "teacher"(교사 인증 회원)
+   ========================================================= */
+const SITE = {
+  shop: { enabled: false },          // 자체 쇼핑몰 오픈 시 true
+  categories: ["초등 영어","중등 문법","고등 독해","어휘","수능·모의고사"]
+};
+
+const BOOKS = [
+  { id:"grammar-start-1", title:"그래머 스타트 1", sub:"중학 영문법 첫걸음", cat:"중등 문법", level:"중1", color:"var(--c1)",
+    isbn:"979-11-0000-001-1", pages:184, size:"210×275mm", date:"2026-03-02", price:15000, isNew:true,
+    desc:"중학 1학년 교과서 핵심 문법을 32개 유닛으로 나눴습니다. 유닛마다 개념 정리, 단계별 연습, 서술형 대비 문제가 이어지고, 권말에는 내신 대비 실전 테스트 4회분이 있습니다.",
+    toc:["Unit 01 be동사","Unit 02 일반동사","Unit 03 현재진행형","Unit 04 과거시제","… Unit 32 비교급과 최상급","실전 테스트 1~4회"],
+    resources:[
+      {type:"MP3", name:"예문 음성 파일", size:"86MB", access:"all", url:""},
+      {type:"PDF", name:"정답과 해설", size:"4.2MB", access:"all", url:""},
+      {type:"HWP", name:"유닛별 추가 문제", size:"2.1MB", access:"teacher", url:""},
+      {type:"PPT", name:"수업용 슬라이드", size:"38MB", access:"teacher", url:""}
+    ]},
+  { id:"grammar-start-2", title:"그래머 스타트 2", sub:"중학 영문법 다지기", cat:"중등 문법", level:"중2", color:"var(--c1)",
+    isbn:"979-11-0000-002-8", pages:192, size:"210×275mm", date:"2026-03-02", price:15000, isNew:true,
+    desc:"to부정사, 동명사, 분사, 수동태처럼 중2에서 갈리는 문법을 집중적으로 다룹니다. 헷갈리는 쌍을 나란히 비교하는 ‘비교 노트’를 실었습니다.",
+    toc:["Unit 01 to부정사의 명사적 용법","Unit 02 동명사","… Unit 30 관계대명사","실전 테스트 1~4회"],
+    resources:[
+      {type:"PDF", name:"정답과 해설", size:"4.6MB", access:"all", url:""},
+      {type:"HWP", name:"서술형 변형 문제", size:"1.8MB", access:"teacher", url:""}
+    ]},
+  { id:"reading-bridge", title:"리딩 브릿지", sub:"고1 수능형 독해 입문", cat:"고등 독해", level:"고1", color:"var(--c2)",
+    isbn:"979-11-0000-003-5", pages:216, size:"188×257mm", date:"2025-12-15", price:17000,
+    desc:"주제·요지, 빈칸, 순서, 삽입 등 수능 독해 유형을 지문 600~800단어 길이로 연습합니다. 지문마다 구문 분석과 어휘 정리가 붙어 있습니다.",
+    toc:["Part 1 대의 파악","Part 2 세부 정보","Part 3 빈칸 추론","Part 4 간접 쓰기","미니 모의고사 3회"],
+    resources:[
+      {type:"PDF", name:"정답과 해설", size:"6.0MB", access:"all", url:""},
+      {type:"PDF", name:"지문별 어휘 테스트지", size:"1.3MB", access:"all", url:""},
+      {type:"HWP", name:"지문 분석 워크시트", size:"3.4MB", access:"teacher", url:""}
+    ]},
+  { id:"voca-1800", title:"보카 1800", sub:"수능 필수 어휘", cat:"어휘", level:"고1~고3", color:"var(--c3)",
+    isbn:"979-11-0000-004-2", pages:320, size:"128×188mm", date:"2025-09-01", price:13000,
+    desc:"기출 빈도로 고른 1,800단어를 하루 40개, 45일 일정으로 외웁니다. 단어마다 기출 예문과 파생어, 혼동어를 함께 실었습니다.",
+    toc:["Day 01~15 기본 어휘","Day 16~30 빈출 어휘","Day 31~45 고난도 어휘","누적 테스트"],
+    resources:[
+      {type:"MP3", name:"단어·예문 음성", size:"120MB", access:"all", url:""},
+      {type:"PDF", name:"일일 단어 시험지", size:"2.7MB", access:"all", url:""}
+    ]},
+  { id:"phonics-fun-1", title:"파닉스 펀 1", sub:"알파벳과 단모음", cat:"초등 영어", level:"초1~2", color:"var(--c4)",
+    isbn:"979-11-0000-005-9", pages:112, size:"215×280mm", date:"2026-01-20", price:12000, isNew:true,
+    desc:"알파벳 26자의 소리와 단모음을 챈트와 그림 단어로 익힙니다. 스티커 활동지와 따라 쓰기 페이지가 들어 있습니다.",
+    toc:["Unit 1 A~E","Unit 2 F~J","… Unit 6 단모음 a, e, i, o, u","복습 게임"],
+    resources:[
+      {type:"MP3", name:"챈트 음원", size:"64MB", access:"all", url:""},
+      {type:"PDF", name:"플래시카드", size:"9.8MB", access:"all", url:""}
+    ]},
+  { id:"mock-test-20", title:"수능 영어 실전 모의고사 20회", sub:"고3·N수 대비", cat:"수능·모의고사", level:"고3", color:"var(--c5)",
+    isbn:"979-11-0000-006-6", pages:260, size:"210×297mm", date:"2026-06-10", price:16000,
+    desc:"최근 수능 출제 경향을 반영한 실전 모의고사 20회분입니다. 회차별 듣기 음원과 문항별 해설, 오답 선택지 분석을 제공합니다.",
+    toc:["실전 모의고사 01~20회","빠른 정답표","해설편 (분책)"],
+    resources:[
+      {type:"MP3", name:"듣기 음원 20회분", size:"210MB", access:"all", url:""},
+      {type:"PDF", name:"OMR 답안지", size:"0.4MB", access:"all", url:""},
+      {type:"PDF", name:"회차별 성적 분석표", size:"0.8MB", access:"teacher", url:""}
+    ]},
+  { id:"writing-lab", title:"서술형 라이팅 랩", sub:"중학 내신 서술형", cat:"중등 문법", level:"중2~3", color:"var(--c6)",
+    isbn:"979-11-0000-007-3", pages:168, size:"210×275mm", date:"2025-08-25", price:14000,
+    desc:"조건 영작, 문장 전환, 오류 수정 등 내신 서술형 유형을 단계별로 연습합니다. 채점 기준표를 함께 실어 스스로 점검할 수 있습니다.",
+    toc:["Chapter 1 문장 구조","Chapter 2 시제와 조동사","Chapter 3 준동사","Chapter 4 절","실전 서술형 평가"],
+    resources:[
+      {type:"PDF", name:"정답과 채점 기준", size:"3.1MB", access:"all", url:""}
+    ]}
+];
+
+const NOTICES = [
+  {date:"2026-11-03", title:"2027학년도 신간 출간 일정 안내"},
+  {date:"2026-10-20", title:"교사 회원 자료실 인증 절차 안내"},
+  {date:"2026-09-12", title:"추석 연휴 배송 및 고객센터 운영 안내"}
+];
+const ERRATA = [
+  {date:"2026-10-28", book:"그래머 스타트 1", title:"1쇄 p.42 연습문제 B-3 정답 수정"},
+  {date:"2026-09-30", book:"리딩 브릿지", title:"1쇄 p.115 해설 오탈자 수정"}
+];
+const FAQ = [
+  ["교사용 자료는 어떻게 받나요?","회원 가입 후 교사 인증(재직 증명 또는 학원 등록증)을 신청하시면 교사 전용 자료를 받으실 수 있습니다."],
+  ["책을 단체 주문하고 싶어요.","학교·학원 단체 주문은 고객센터 문의 남기기에 수량과 연락처를 적어 주시면 담당자가 연락드립니다."],
+  ["음원 파일이 재생되지 않아요.","MP3 파일은 압축을 푼 뒤 재생해 주세요. 계속 문제가 있으면 도서명과 함께 문의를 남겨 주세요."]
+];
+
+/* ================= 화면 ================= */
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString("ko-KR") + "원";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cover = b => `<div class="cover" style="--cc:${b.color}"><small>${esc(b.cat)} · ${esc(b.level)}</small><strong>${esc(b.title)}</strong><span class="pub">enkbooks</span></div>`;
+const card = b => `<a class="card" href="#book-${b.id}">${cover(b)}<div><h3>${esc(b.title)}</h3><div class="meta"><span>${esc(b.level)}</span><span>${won(b.price)}</span>${b.isNew?'<span class="tag new">신간</span>':''}</div></div></a>`;
+
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem("enk-cart") || "[]"); } catch(e) {}
+const saveCart = () => { try { localStorage.setItem("enk-cart", JSON.stringify(cart)); } catch(e) {} $("#cartCount").textContent = cart.length; };
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2400); }
+
+const views = {
+  home(){
+    const picks = BOOKS.filter(b=>b.isNew).concat(BOOKS.filter(b=>!b.isNew)).slice(0,5);
+    return `
+    <section class="hero">
+      <div>
+        <div class="eyebrow">영어 교육 전문 출판</div>
+        <h1>교실에서 바로 쓰는<br><span class="mark">영어 교재</span>를 만듭니다</h1>
+        <p>초등 파닉스부터 수능 모의고사까지. 책마다 음원, 해설, 수업용 자료를 자료실에서 함께 드립니다.</p>
+        <div class="hero-actions"><a class="btn" href="#books">교재 둘러보기</a><a class="btn ghost" href="#resources">부가자료 받기</a></div>
+      </div>
+      <div class="hero-stack">${BOOKS.filter(b=>b.isNew).slice(0,3).map(cover).join("")}</div>
+    </section>
+    <div class="quick">
+      ${SITE.categories.slice(0,4).map(c=>`<a href="#books" data-cat="${esc(c)}"><b>${esc(c)}</b><span>${BOOKS.filter(b=>b.cat===c).length}종</span></a>`).join("")}
+    </div>
+    <section>
+      <div class="sec-head"><h2>신간·추천 교재</h2><a href="#books">전체 교재 보기</a></div>
+      <div class="grid">${picks.map(card).join("")}</div>
+    </section>
+    <section class="two">
+      <div><div class="sec-head"><h2>공지사항</h2><a href="#support">더 보기</a></div>${board(NOTICES)}</div>
+      <div><div class="sec-head"><h2>정오표</h2><a href="#support">더 보기</a></div>${board(ERRATA,true)}</div>
+    </section>`;
+  },
+
+  books(){
+    return `
+    <div class="sec-head"><div><div class="eyebrow">Books</div><h2>교재 목록</h2></div></div>
+    <div class="catalog">
+      <div class="filters" id="filters">${["전체",...SITE.categories].map(c=>`<button type="button" data-c="${esc(c)}" class="${c===state.cat?'on':''}">${esc(c)}</button>`).join("")}</div>
+      <div>
+        <div class="toolbar">
+          <input id="q" type="search" placeholder="책 이름이나 ISBN으로 찾기" value="${esc(state.q)}" aria-label="교재 검색">
+          <select id="sort" aria-label="정렬"><option value="new">최신순</option><option value="title">가나다순</option><option value="price">가격 낮은순</option></select>
+        </div>
+        <div class="count" id="count"></div>
+        <div class="grid" id="list" style="margin-top:12px"></div>
+      </div>
+    </div>`;
+  },
+
+  book(id){
+    const b = BOOKS.find(x=>x.id===id);
+    if(!b) return `<p>찾는 책이 없습니다. <a href="#books">교재 목록</a>으로 돌아가세요.</p>`;
+    const q = encodeURIComponent(b.isbn.replace(/-/g,""));
+    const shopBtns = SITE.shop.enabled
+      ? `<button class="btn" type="button" data-add="${b.id}">장바구니 담기</button><button class="btn ghost" type="button" data-add="${b.id}" data-now="1">바로 구매</button>`
+      : `<button class="btn" type="button" data-add="${b.id}">장바구니 담기</button>`;
+    return `
+    <p class="note"><a href="#books">교재</a> › ${esc(b.cat)}</p>
+    <div class="detail">
+      <div>${cover(b)}</div>
+      <div>
+        <div><span class="tag">${esc(b.cat)}</span> ${b.isNew?'<span class="tag new">신간</span>':''}</div>
+        <h1>${esc(b.title)}</h1>
+        <div class="sub">${esc(b.sub)}</div>
+        <dl class="spec">
+          <dt>대상</dt><dd>${esc(b.level)}</dd>
+          <dt>발행일</dt><dd>${b.date}</dd>
+          <dt>쪽수 · 판형</dt><dd>${b.pages}쪽 · ${esc(b.size)}</dd>
+          <dt>ISBN</dt><dd class="mono">${esc(b.isbn)}</dd>
+        </dl>
+        <div class="price"><b>${won(Math.round(b.price*0.9/10)*10)}</b><s>${won(b.price)}</s><span class="note">10% 할인</span></div>
+        <div class="buy">${shopBtns}</div>
+        <p class="note">${SITE.shop.enabled?'':'자체 판매는 준비 중입니다. 지금은 아래 온라인 서점에서 구매할 수 있습니다.'}</p>
+        <div class="stores">
+          <a href="https://search.kyobobook.co.kr/search?keyword=${q}" target="_blank" rel="noopener">교보문고</a>
+          <a href="https://www.yes24.com/Product/Search?query=${q}" target="_blank" rel="noopener">YES24</a>
+          <a href="https://www.aladin.co.kr/search/wsearchresult.aspx?SearchWord=${q}" target="_blank" rel="noopener">알라딘</a>
+        </div>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" class="on" data-tab="intro">책 소개</button>
+      <button type="button" data-tab="toc">목차</button>
+      <button type="button" data-tab="res">부가자료 ${b.resources.length}</button>
+    </div>
+    <div data-pane="intro" class="prose"><p>${esc(b.desc)}</p></div>
+    <div data-pane="toc" class="prose" hidden><ul class="toc">${b.toc.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
+    <div data-pane="res" hidden>${resTable(b.resources.map(r=>({...r,book:b})), false)}</div>`;
+  },
+
+  resources(){
+    const rows = BOOKS.flatMap(b=>b.resources.map(r=>({...r,book:b})));
+    return `
+    <div class="sec-head"><div><div class="eyebrow">Resources</div><h2>자료실</h2></div></div>
+    <p class="note" style="margin:-8px 0 20px">음원, 정답·해설은 누구나 받을 수 있고, 수업용 자료는 교사 인증 회원에게 제공됩니다.</p>
+    <div class="toolbar">
+      <select id="rbook" aria-label="도서 선택"><option value="">전체 도서</option>${BOOKS.map(b=>`<option value="${b.id}">${esc(b.title)}</option>`).join("")}</select>
+      <select id="rtype" aria-label="자료 종류"><option value="">모든 종류</option>${[...new Set(rows.map(r=>r.type))].map(t=>`<option>${t}</option>`).join("")}</select>
+    </div>
+    <div id="rlist">${resTable(rows, true)}</div>`;
+  },
+
+  support(){
+    return `
+    <div class="sec-head"><div><div class="eyebrow">Support</div><h2>고객센터</h2></div></div>
+    <section class="two" style="margin-top:0">
+      <div><h3 style="margin-bottom:12px">공지사항</h3>${board(NOTICES)}</div>
+      <div><h3 style="margin-bottom:12px">정오표</h3>${board(ERRATA,true)}</div>
+    </section>
+    <section>
+      <h3 style="margin-bottom:12px">자주 묻는 질문</h3>
+      <ul class="board">${FAQ.map(([q,a])=>`<li style="display:block"><b>Q. ${esc(q)}</b><div class="note" style="margin-top:4px">${esc(a)}</div></li>`).join("")}</ul>
+    </section>
+    <section>
+      <div class="panel">
+        <h3 style="margin-bottom:16px">문의 남기기</h3>
+        <form class="form" id="ask">
+          <label for="f-type">문의 종류<select id="f-type"><option>교재 내용</option><option>부가자료</option><option>단체 주문</option><option>기타</option></select></label>
+          <label for="f-name">이름<input id="f-name" required></label>
+          <label for="f-contact">연락처 또는 이메일<input id="f-contact" required></label>
+          <label for="f-msg">내용<textarea id="f-msg" rows="4" required></textarea></label>
+          <div><button class="btn" type="submit">문의 등록</button></div>
+          <p class="note">미리보기 화면이라 문의는 실제로 전송되지 않습니다.</p>
+        </form>
+      </div>
+    </section>`;
+  },
+
+  about(){
+    return `
+    <div class="sec-head"><div><div class="eyebrow">About</div><h2>회사소개</h2></div></div>
+    <div class="prose">
+      <p style="font-family:var(--display);font-size:22px;font-weight:700;line-height:1.5">선생님이 수업에 그대로 가져갈 수 있는 책, 학생이 혼자서도 끝까지 풀 수 있는 책을 만듭니다.</p>
+      <p>enkbooks는 영어 교육 전문 출판사입니다. 교재마다 음원과 해설, 수업용 자료를 함께 만들어 자료실에서 무료로 제공합니다. 이 소개 문구는 예시이니 실제 회사 이야기로 바꿔 주세요.</p>
+      <dl class="spec"><dt>출판 분야</dt><dd>초등 영어 · 중등 문법 · 고등 독해 · 어휘 · 수능</dd><dt>출간 도서</dt><dd>${BOOKS.length}종 (예시)</dd><dt>연락처</dt><dd>등록 후 기재 예정</dd></dl>
+    </div>`;
+  }
+};
+
+function board(items, withBook){
+  return `<ul class="board">${items.map(i=>`<li><b>${withBook?`<span class="tag">${esc(i.book)}</span> `:''}${esc(i.title)}</b><time>${i.date}</time></li>`).join("")}</ul>`;
+}
+function resTable(rows, showBook){
+  if(!rows.length) return `<p class="note">해당하는 자료가 없습니다.</p>`;
+  return `<div class="table-wrap"><table><thead><tr>${showBook?'<th>도서</th>':''}<th>자료</th><th>형식</th><th>용량</th><th>대상</th><th></th></tr></thead><tbody>
+  ${rows.map(r=>`<tr>${showBook?`<td><a href="#book-${r.book.id}">${esc(r.book.title)}</a></td>`:''}<td>${esc(r.name)}</td><td><span class="ftype">${r.type}</span></td><td class="num">${r.size}</td>
+    <td>${r.access==="teacher"?'<span class="lock">교사 회원</span>':'<span class="lock">누구나</span>'}</td>
+    <td>${r.url?`<a class="dl" href="${esc(r.url)}" target="_blank" rel="noopener">받기</a>`:`<button class="dl" type="button" disabled title="파일 등록 전입니다">준비 중</button>`}</td></tr>`).join("")}
+  </tbody></table></div>`;
+}
+
+/* ================= 라우팅 ================= */
+const state = { cat:"전체", q:"" };
+function route(){
+  const h = location.hash.slice(1) || "home";
+  let name = h, arg;
+  if(h.startsWith("book-")){ name="book"; arg=h.slice(5); }
+  if(!views[name]) name="home";
+  $("#app").innerHTML = views[name](arg);
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on", a.getAttribute("href")==="#"+(name==="book"?"books":name)));
+  window.scrollTo(0,0);
+  if(name==="books") bindCatalog();
+  if(name==="resources") bindResources();
+}
+function bindCatalog(){
+  const draw = () => {
+    const q = state.q.trim().toLowerCase().replace(/-/g,"");
+    let list = BOOKS.filter(b => (state.cat==="전체"||b.cat===state.cat) && (!q || b.title.toLowerCase().includes(q) || b.isbn.replace(/-/g,"").includes(q)));
+    const s = $("#sort").value;
+    list.sort(s==="title"?(a,b)=>a.title.localeCompare(b.title,"ko"):s==="price"?(a,b)=>a.price-b.price:(a,b)=>b.date.localeCompare(a.date));
+    $("#list").innerHTML = list.map(card).join("") || `<p class="note">조건에 맞는 교재가 없습니다.</p>`;
+    $("#count").textContent = `${list.length}종`;
+  };
+  $("#filters").onclick = e => { const c=e.target.dataset.c; if(!c) return; state.cat=c; document.querySelectorAll("#filters button").forEach(b=>b.classList.toggle("on",b.dataset.c===c)); draw(); };
+  $("#q").oninput = e => { state.q=e.target.value; draw(); };
+  $("#sort").onchange = draw;
+  draw();
+}
+function bindResources(){
+  const draw = () => {
+    const bk=$("#rbook").value, tp=$("#rtype").value;
+    const rows = BOOKS.filter(b=>!bk||b.id===bk).flatMap(b=>b.resources.filter(r=>!tp||r.type===tp).map(r=>({...r,book:b})));
+    $("#rlist").innerHTML = resTable(rows, true);
+  };
+  $("#rbook").onchange = draw; $("#rtype").onchange = draw;
+}
+
+document.addEventListener("click", e => {
+  const cat = e.target.closest("[data-cat]"); if(cat) state.cat = cat.dataset.cat;
+  const tab = e.target.closest("[data-tab]");
+  if(tab){ document.querySelectorAll("[data-tab]").forEach(t=>t.classList.toggle("on",t===tab)); document.querySelectorAll("[data-pane]").forEach(p=>p.hidden=p.dataset.pane!==tab.dataset.tab); }
+  const add = e.target.closest("[data-add]");
+  if(add){ cart.push(add.dataset.add); saveCart(); toast(SITE.shop.enabled?"장바구니에 담았습니다.":"장바구니에 담았습니다. 결제 기능은 준비 중입니다."); }
+});
+$("#cartBtn").onclick = () => toast(cart.length ? `장바구니에 ${cart.length}권이 있습니다. 결제 기능은 준비 중입니다.` : "장바구니가 비어 있습니다.");
+document.addEventListener("submit", e => { if(e.target.id==="ask"){ e.preventDefault(); e.target.reset(); toast("문의가 등록되었습니다. (미리보기라 실제 전송되지 않습니다)"); } });
+
+window.addEventListener("hashchange", route);
+saveCart(); route();
+</script>
+</body>
+</html>
