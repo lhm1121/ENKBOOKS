@@ -117,6 +117,9 @@ section+section{margin-top:96px}
 @media (max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:32px 16px}}
 
 /* catalog */
+.stages{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.stages button{border:0;background:transparent;padding:10px 18px;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.stages button.on{color:var(--ink);font-weight:600;border-color:var(--accent)}
 .catalog{display:grid;grid-template-columns:190px 1fr;gap:48px}
 .filters{display:flex;flex-direction:column;gap:2px;position:sticky;top:100px;align-self:start}
 .filters button{text-align:left;border:0;border-left:1px solid var(--line);background:transparent;color:var(--muted);padding:8px 16px;font-size:14px}
@@ -308,7 +311,7 @@ section + section.band{margin-top:96px}
    ========================================================= */
 const SITE = {
   shop: { enabled: false },          // 자체 쇼핑몰 오픈 시 true
-  categories: ["초등 영어","중등 문법","고등 독해","어휘","수능·모의고사"],
+  categories: ["초등 영어","중등 문법","고등 독해","어휘","수능·모의고사","지텔프","공무원 영어","토익"],
   // 메인 배너 (순서대로 넘어갑니다)
   featured: [
     {id:"grammar-start-1", label:"2026 신간", headline:"중학 문법, 첫 단추부터 제대로", text:"교과서 핵심 문법 32개 유닛과 서술형 대비까지. 그래머 스타트 시리즈가 새로 나왔어요."},
@@ -324,6 +327,9 @@ const SITE = {
     {name:"파닉스 펀", target:"초등 입문", ids:["phonics-fun-1"], desc:"알파벳 소리부터 첫 리딩까지 놀이처럼 배우는 초등 과정"}
   ]
 };
+
+// 학년 구분: level이 이 글자로 시작하는 책이 그 학년에 들어갑니다
+const STAGES = [["초","Elementary","초등"],["중","Middle School","중등"],["고","High School","고등"],["성","Adult","성인"]];
 
 const BOOKS = [
   { id:"grammar-start-1", title:"그래머 스타트 1", sub:"중학 영문법 첫걸음", cat:"중등 문법", level:"중1", color:"var(--c1)",
@@ -384,6 +390,22 @@ const BOOKS = [
     toc:["Chapter 1 문장 구조","Chapter 2 시제와 조동사","Chapter 3 준동사","Chapter 4 절","실전 서술형 평가"],
     resources:[
       {type:"PDF", name:"정답과 채점 기준", size:"3.1MB", access:"all", url:""}
+    ]},
+  { id:"gtelp-32", title:"지텔프 32+ 5일 완성", sub:"Level 2 목표 점수 단기 완성", cat:"지텔프", level:"성인", color:"var(--c4)",
+    isbn:"979-11-0000-008-0", pages:240, size:"188×257mm", date:"2026-07-15", price:18000,
+    desc:"지텔프 Level 2 문법·독해·청취의 출제 유형을 5일 일정으로 정리했습니다. 실전 모의고사 2회와 문법 공식 요약표를 실었습니다.",
+    toc:["Day 1 시제와 가정법","Day 2 준동사와 조동사","Day 3 독해 유형","Day 4 청취 유형","Day 5 실전 모의고사"],
+    resources:[
+      {type:"MP3", name:"청취 음원", size:"95MB", access:"all", url:""},
+      {type:"PDF", name:"정답과 해설", size:"3.8MB", access:"all", url:""}
+    ]},
+  { id:"civil-grammar-500", title:"공무원 영어 문법 기출 500", sub:"9급 공무원 대비", cat:"공무원 영어", level:"성인", color:"var(--c2)",
+    isbn:"979-11-0000-009-7", pages:280, size:"188×257mm", date:"2026-05-20", price:19000,
+    desc:"최근 공무원 시험에 나온 문법 문제 500개를 주제별로 모았습니다. 문제마다 출제 포인트와 오답 이유를 짧게 정리했습니다.",
+    toc:["Part 1 동사와 시제","Part 2 준동사","Part 3 관계사와 접속사","Part 4 특수 구문","실전 테스트 5회"],
+    resources:[
+      {type:"PDF", name:"정답과 해설", size:"4.4MB", access:"all", url:""},
+      {type:"PDF", name:"주제별 오답 노트", size:"1.6MB", access:"all", url:""}
     ]}
 ];
 
@@ -438,8 +460,7 @@ const views = {
         </div>
         <div class="dots" id="dots">${slides.map((f,i)=>`<button type="button" aria-label="${i+1}번 배너" data-go="${i}" class="${i?'':'on'}"></button>`).join("")}</div>
         <nav class="rail" aria-label="학년별 교재">
-          ${[["초","Elementary","초등"],["중","Middle School","중등"],["고","High School","고등"]].map(([k,en,ko])=>`<a href="#books" data-stage="${k}"><small>${en}</small><span>${ko}</span><em>${stage(k).length}</em></a>`).join("")}
-          <a href="#resources"><small>Resources</small><span>자료실</span><em>→</em></a>
+          ${STAGES.map(([k,en,ko])=>`<a href="#books" data-stage="${k}"><small>${en}</small><span>${ko}</span><em>${stage(k).length}</em></a>`).join("")}
         </nav>
       </div>
     </section>
@@ -496,6 +517,7 @@ const views = {
     <div class="catalog">
       <div class="filters" id="filters">${["전체",...SITE.categories].map(c=>`<button type="button" data-c="${esc(c)}" class="${c===state.cat?'on':''}">${esc(c)}</button>`).join("")}</div>
       <div>
+        <div class="stages" id="stages">${[["","전체"],...STAGES.map(x=>[x[0],x[2]])].map(([k,t])=>`<button type="button" data-s="${k}" class="${k===state.stage?'on':''}">${t}</button>`).join("")}</div>
         <div class="toolbar">
           <input id="q" type="search" placeholder="책 이름이나 ISBN으로 찾기" value="${esc(state.q)}" aria-label="교재 검색">
           <select id="sort" aria-label="정렬"><option value="new">최신순</option><option value="title">가나다순</option><option value="price">가격 낮은순</option></select>
@@ -609,7 +631,7 @@ function resTable(rows, showBook){
 }
 
 /* ================= 라우팅 ================= */
-const state = { cat:"전체", q:"" };
+const state = { cat:"전체", q:"", stage:"" };
 function route(){
   const h = location.hash.slice(1) || "home";
   let name = h, arg;
@@ -633,12 +655,13 @@ function bindHome(){
 function bindCatalog(){
   const draw = () => {
     const q = state.q.trim().toLowerCase().replace(/-/g,"");
-    let list = BOOKS.filter(b => (state.cat==="전체"||b.cat===state.cat) && (!q || b.title.toLowerCase().includes(q) || b.isbn.replace(/-/g,"").includes(q)));
+    let list = BOOKS.filter(b => (!state.stage||b.level.startsWith(state.stage)) && (state.cat==="전체"||b.cat===state.cat) && (!q || b.title.toLowerCase().includes(q) || b.isbn.replace(/-/g,"").includes(q)));
     const s = $("#sort").value;
     list.sort(s==="title"?(a,b)=>a.title.localeCompare(b.title,"ko"):s==="price"?(a,b)=>a.price-b.price:(a,b)=>b.date.localeCompare(a.date));
     $("#list").innerHTML = list.map(card).join("") || `<p class="note">조건에 맞는 교재가 없습니다.</p>`;
     $("#count").textContent = `${list.length}종`;
   };
+  $("#stages").onclick = e => { const b=e.target.closest("[data-s]"); if(!b) return; state.stage=b.dataset.s; state.cat="전체"; document.querySelectorAll("#stages button").forEach(x=>x.classList.toggle("on",x===b)); document.querySelectorAll("#filters button").forEach(x=>x.classList.toggle("on",x.dataset.c==="전체")); draw(); };
   $("#filters").onclick = e => { const c=e.target.dataset.c; if(!c) return; state.cat=c; document.querySelectorAll("#filters button").forEach(b=>b.classList.toggle("on",b.dataset.c===c)); draw(); };
   $("#q").oninput = e => { state.q=e.target.value; draw(); };
   $("#sort").onchange = draw;
