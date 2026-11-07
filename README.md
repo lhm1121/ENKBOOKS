@@ -1,6 +1,6 @@
 # enkbooks 홈페이지
 
-영어 교육 출판사 enkbooks(이엔케이북스)의 홈페이지입니다. GitHub Pages로 호스팅합니다.
+영어 교육 출판사 ENK Books(이엔케이북스)의 홈페이지입니다. GitHub Pages로 호스팅합니다.
 
 ## 책·자료 수정하는 곳
 
